@@ -5,11 +5,12 @@ var ctx = canvas.getContext("2d");
 var center = [250, 250];
 var xRes = 500; //pull these directly from element
 var yRes = 500;
+var searchLimit = 50 
+var colorShiftAmount = 2
 
-function spin(hub){
+function spin(hub, searchDepth){
 //take hub pixel and return new blank bordering pixel coordinates
 //if no valid pixels returns false
-//todo: escape deadends
   function candidateIsValid(candidate){
     if (candidate[0] < xRes && candidate[1] < yRes && candidate[0] > 0 && candidate[1] > 0){
       var imgData = ctx.getImageData(candidate[0], candidate[1], 1, 1)
@@ -19,34 +20,35 @@ function spin(hub){
     } else{
       return false 
     } 
-  } 
+  }
+  var candidate = [0, 0]; 
   var unchecked = [0, 1, 2, 3, 4, 5, 6, 7];
   while(unchecked.length > 0){
     var roll = Math.floor(Math.random() * unchecked.length);
     switch (unchecked[roll]){
       case 0:
-        var candidate = [hub[0] - 1, hub[1] - 1];
+        candidate = [hub[0] - searchDepth, hub[1] - searchDepth];
         break;
-      case 1:
-        var candidate = [hub[0], hub[1] - 1];
+      case searchDepth:
+        candidate = [hub[0], hub[1] - searchDepth];
         break;
       case 2:
-        var candidate = [hub[0] + 1, hub[1] - 1];
+        candidate = [hub[0] + searchDepth, hub[1] - searchDepth];
         break;
       case 3:
-        var candidate = [hub[0] - 1, hub[1]];
+        candidate = [hub[0] - searchDepth, hub[1]];
         break;
       case 4:
-        var candidate = [hub[0] + 1, hub[1]];
+        candidate = [hub[0] + searchDepth, hub[1]];
         break;
       case 5:
-        var candidate = [hub[0] - 1, hub[1] + 1];
+        candidate = [hub[0] - searchDepth, hub[1] + searchDepth];
         break;
       case 6:
-        var candidate = [hub[0], hub[1] + 1];
+        candidate = [hub[0], hub[1] + searchDepth];
         break;
       case 7:
-        var candidate = [hub[0] + 1, hub[1] + 1];
+        candidate = [hub[0] + searchDepth, hub[1] + searchDepth];
         break;
     }
     if (candidateIsValid(candidate)){
@@ -54,6 +56,11 @@ function spin(hub){
     } else{
       unchecked.splice(roll, 1)
     }
+  }
+  if (searchDepth < searchLimit){
+    console.log('soft deadend at depth of ' + searchDepth)
+    searchDepth ++;
+    return spin(hub, searchDepth)
   }
   //deadend
   return false
@@ -64,7 +71,7 @@ function colorShift(currentColor){
   } else if (currentColor == 0){
     return 1
   } else {
-    var newColor = currentColor + eval(Math.random() < 0.5 ? -1 : 1) * 10;
+    var newColor = currentColor + eval(Math.random() < 0.5 ? -1 : 1) * colorShiftAmount;
     return newColor;
   }
 }
@@ -81,8 +88,7 @@ while(currentHub && count < 100){
   console.log(imgData.data + " current color");
   ctx.putImageData(imgData, currentHub[0], currentHub[1]);
   lastHub = currentHub;
-  currentHub = spin(currentHub);
+  currentHub = spin(currentHub, 1);
   console.log("current hub is " + currentHub)
-  console.log(lastHub + " lastHub")
 };
 console.log("it should have worked")
