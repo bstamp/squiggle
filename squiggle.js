@@ -15,7 +15,7 @@ function spin(hub, searchDepth){
   function candidateIsValid(candidate){
     if (candidate[0] < xRes && candidate[1] < yRes && candidate[0] > 0 && candidate[1] > 0){
       var imgData = ctx.getImageData(candidate[0], candidate[1], 1, 1)
-      if(imgData.data[0] == 0 && imgData.data[1] == 0 && imgData.data[2] == 0){
+      if(imgData.data[3] == 0){
         return true
       }
     } else{
