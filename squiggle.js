@@ -1,12 +1,13 @@
 var canvas = document.getElementById("theCanvas");
 var ctx = canvas.getContext("2d");
+//canvas.addEventListener("click", paint(event));
 
 //temp variables for dev/debugging; to be replaced 
 var center = [250, 250];
 var xRes = 500; //pull these directly from element
 var yRes = 500;
-var searchLimit = 50 
-var colorShiftAmount = 2
+var searchLimit = 10;
+var colorShiftAmount = 1;
 
 function spin(hub, searchDepth){
 //take hub pixel and return new blank bordering pixel coordinates
@@ -76,19 +77,23 @@ function colorShift(currentColor){
   }
 }
 
-var currentHub = center;
-var lastHub = center;
-var count = 0;
-while(currentHub && count < 100){
-  imgData = ctx.getImageData(lastHub[0], lastHub[1], 1, 1)
-  imgData.data[0] = colorShift(imgData.data[0]);
-  imgData.data[1] = colorShift(imgData.data[1]);
-  imgData.data[2] = colorShift(imgData.data[2]);
-  imgData.data[3] = 255;
-  console.log(imgData.data + " current color");
-  ctx.putImageData(imgData, currentHub[0], currentHub[1]);
-  lastHub = currentHub;
-  currentHub = spin(currentHub, 1);
-  console.log("current hub is " + currentHub)
-};
-console.log("it should have worked")
+function paint(clickEvent){
+  console.log('click detected')
+  console.log('clickEvent ' + clickEvent)
+  if(clickEvent == undefined){return};
+  var currentHub = [clickEvent.offsetX, clickEvent.offsetY];
+  var lastHub = [clickEvent.offsetX, clickEvent.offsetY];
+  while(currentHub){
+    imgData = ctx.getImageData(lastHub[0], lastHub[1], 1, 1)
+    imgData.data[0] = colorShift(imgData.data[0]);
+    imgData.data[1] = colorShift(imgData.data[1]);
+    imgData.data[2] = colorShift(imgData.data[2]);
+    imgData.data[3] = 255;
+    console.log(imgData.data + " current color");
+    ctx.putImageData(imgData, currentHub[0], currentHub[1]);
+    lastHub = currentHub;
+    currentHub = spin(currentHub, 1);
+    console.log("current hub is " + currentHub)
+  }
+  console.log("it should have worked")
+}
